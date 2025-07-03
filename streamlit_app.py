@@ -7,7 +7,14 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 # --- Авторизація Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("gspread_credentials.json", scope)
+import json
+import os
+
+# Читаємо з секретного ENV
+creds_json = os.environ.get("GSPREAD_CREDENTIALS")
+creds_dict = json.loads(creds_json)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+
 client = gspread.authorize(creds)
 
 # --- Назва таблиці
