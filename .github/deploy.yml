@@ -1,1 +1,16 @@
+name: Deploy Streamlit App
+
+on:
+  push:
+    branches: [main]  # або master, якщо твоя гілка так називається
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Streamlit App Action
+        uses: streamlit/streamlit-app-action@v0.0.3
 
