@@ -1,44 +1,21 @@
 import streamlit as st
-import pandas as pd
-import datetime
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
+import pandas as pd
 
-# Авторизація в Google Sheets
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-import os
-import json
-
-creds_json = os.environ.get("GSPREAD_CREDENTIALS")
-creds_dict = json.loads(creds_json)
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-
+# Авторизація
+scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+creds = Credentials.from_service_account_file("gspread_credentials.json", scopes=scope)
 client = gspread.authorize(creds)
 
-# Відкриваємо таблицю
+# Підключення до Google Таблиці
 spreadsheet = client.open("CasinoCRM")
-sheet = spreadsheet.sheet1
+worksheet = spreadsheet.sheet1
 
-st.title("📋 Casino CRM")
-
-with st.form("lead_form"):
-    name = st.text_input("Ім'я та Прізвище")
-    email = st.text_input("Email")
-    phone = st.text_input("Телефон")
-    platform = st.selectbox("Платформа", ["1win", "Pin-Up", "Joker", "Monro", "Cosmolot"])
-    reg_date = st.date_input("Дата реєстрації")
-    dep_date = st.date_input("Дата депозита")
-    deposit = st.number_input("Сума депозиту", 0)
-    status = st.selectbox("Статус", ["Зареєстрований", "Депозит", "FTD", "Оплачено"])
-    submit = st.form_submit_button("Зберегти")
-
-if submit:
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    sheet.append_row([now, name, email, phone, platform, str(reg_date), str(dep_date), deposit, status])
-    st.success("✅ Додано!")
-
-# Вивід даних
-data = sheet.get_all_records()
+# Завантаження даних
+data = worksheet.get_all_records()
 df = pd.DataFrame(data)
-st.subheader("📊 Дані")
+
+# Вивід у Streamlit
+st.title("Casino CRM Viewer")
 st.dataframe(df)
